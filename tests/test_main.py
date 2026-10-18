@@ -1,6 +1,15 @@
+import shutil
+import pytest
 import flet.testing as ftt
 
 
+def test_app_loads():
+    """Verify that main entry point exists and is callable."""
+    from src.main import main
+    assert callable(main)
+
+
+@pytest.mark.skipif(shutil.which("flutter") is None, reason="Flutter SDK not installed for GUI testing")
 async def test_increment(flet_app: ftt.FletTestApp):
     """Counter sample: tap the FAB and assert the counter goes 0 -> 1.
 

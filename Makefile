@@ -28,7 +28,7 @@ setup:
 		$(PYTHON) -m venv $(VENV); \
 	fi
 	$(VENV_BIN)/pip install --upgrade pip
-	$(VENV_BIN)/pip install "flet==1.0.4" "paho-mqtt>=2.0.0" "pytest" "pytest-asyncio"
+	$(VENV_BIN)/pip install "flet==1.0.4" "paho-mqtt>=2.0.0" "numpy>=2.0.0" "pytest" "pytest-asyncio"
 	@echo "Setup complete. Virtual environment ready at $(VENV)."
 
 run:
