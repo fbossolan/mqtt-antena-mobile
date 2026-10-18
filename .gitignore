@@ -1,3 +1,6 @@
+# Specs
+specs/
+
 # Python
 __pycache__/
 *.py[cod]
@@ -15,13 +18,24 @@ env/
 .ruff_cache/
 .pytest_cache/
 
-# Flet
+# Local persistence (database)
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Flet & Flutter Build Outputs
 .flet/
 build/
+dist/
+*.apk
+*.aab
+*.ipa
 
 # IDE
 .idea/
 .vscode/
 
-# macOS
+# macOS & OS
 .DS_Store
+Thumbs.db
