@@ -72,7 +72,7 @@ To ensure strict engineering discipline and alignment, the following rules apply
   - Implement async graceful `disconnect_broker(broker_id: int)`.
   - Ask user for completion confirmation and if a PR should be created.
 
-- [ ] **Task 3.2: Topic Subscription & Message Streaming**
+- [X] **Task 3.2: Topic Subscription & Message Streaming**
   - Implement `subscribe(broker_id: int, topic: str, callback: Callable)`.
   - Default topic filter to `#` if left blank.
   - Implement `unsubscribe(broker_id: int)`.
