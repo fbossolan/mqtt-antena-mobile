@@ -84,7 +84,7 @@ To ensure strict engineering discipline and alignment, the following rules apply
   - Enforce wildcard validation (`+` and `#` disallowed in publish topic).
   - Ask user for completion confirmation and if a PR should be created.
 
-- [ ] **Task 3.4: MQTT Client Unit Tests (`tests/test_mqtt_client.py`)**
+- [X] **Task 3.4: MQTT Client Unit Tests (`tests/test_mqtt_client.py`)**
   - Write and execute unit tests for session registry, topic validation, and callback dispatching using mocks inside `.venv`.
   - Ask user for completion confirmation and if a PR should be created.
 
