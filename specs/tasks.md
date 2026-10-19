@@ -79,7 +79,7 @@ To ensure strict engineering discipline and alignment, the following rules apply
   - Feed received messages into an `asyncio.Queue` and notify registered UI callbacks.
   - Ask user for completion confirmation and if a PR should be created.
 
-- [ ] **Task 3.3: Message Publishing**
+- [X] **Task 3.3: Message Publishing**
   - Implement `publish_message(broker_id: int, topic: str, payload: str, qos: int, retain: bool) -> tuple[bool, Optional[str]]`.
   - Enforce wildcard validation (`+` and `#` disallowed in publish topic).
   - Ask user for completion confirmation and if a PR should be created.

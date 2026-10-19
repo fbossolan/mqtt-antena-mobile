@@ -30,7 +30,7 @@ from typing import Dict, Set, Tuple, Optional, Callable
 
 import paho.mqtt.client as mqtt
 
-from .models import BrokerProfile, ConnectionStatus
+from .models import BrokerProfile, ConnectionStatus, MQTTMessage
 
 # ---------------------------------------------------------------------------
 # Global registry of active sessions keyed by ``broker.id``.
@@ -50,23 +50,54 @@ class ActiveSession:
         Current connection state of the session.
     subscriptions: Set[str]
         Set of topic strings the client is subscribed to.
+    message_queue: asyncio.Queue[MQTTMessage]
+        Queue receiving incoming MQTTMessage objects for UI consumption.
+    callbacks: Set[Callable[[MQTTMessage], None]]
+        Registered callbacks invoked on each received message.
     """
 
     client: mqtt.Client
     status: ConnectionStatus = ConnectionStatus.DISCONNECTED
     subscriptions: Set[str] = field(default_factory=set)
+    message_queue: asyncio.Queue = field(default_factory=asyncio.Queue)
+    callbacks: Set[Callable] = field(default_factory=set)
 
     def __post_init__(self) -> None:
-        # Attach simple callbacks for status tracking.
+        # Attach callbacks for status and message handling.
         self.client.on_connect = self._on_connect
         self.client.on_disconnect = self._on_disconnect
+        self.client.on_message = self._on_message
+
+    def _on_message(self, client, userdata, msg) -> None:  # pragma: no cover
+        """Process incoming MQTT messages, enqueue and notify callbacks."""
+        from .models import MQTTMessage
+        message = MQTTMessage(
+            timestamp=None,
+            topic=msg.topic,
+            payload=msg.payload.decode(errors="ignore"),
+            qos=msg.qos,
+            retained=bool(msg.retain),
+            broker_id=getattr(client, "_broker_id", None),
+        )
+        try:
+            self.message_queue.put_nowait(message)
+        except asyncio.QueueFull:
+            # Discard oldest if full.
+            try:
+                self.message_queue.get_nowait()
+                self.message_queue.put_nowait(message)
+            except Exception:
+                pass
+        for cb in list(self.callbacks):
+            try:
+                cb(message)
+            except Exception:
+                pass
 
     def _on_connect(self, client, userdata, flags, rc):  # pragma: no cover
-        # rc 0 means success.
         self.status = ConnectionStatus.CONNECTED if rc == 0 else ConnectionStatus.ERROR
 
     def _on_disconnect(self, client, userdata, rc):  # pragma: no cover
-        # rc == 0 is a clean disconnect.
         self.status = ConnectionStatus.DISCONNECTED
 
 
