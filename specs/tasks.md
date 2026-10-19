@@ -66,7 +66,7 @@ To ensure strict engineering discipline and alignment, the following rules apply
 
 ## 5. Phase 3: Asynchronous MQTT Engine (`src/mqtt_client.py`)
 
-- [ ] **Task 3.1: Session Representation & Async Lifecycle**
+- [X] **Task 3.1: Session Representation & Async Lifecycle**
   - Implement `ActiveSession` state container tracking Paho `Client`, connection status, and active subscriptions.
   - Implement async `connect_broker(broker: BrokerProfile) -> tuple[bool, Optional[str]]` with SSL/TLS context and credentials support.
   - Implement async graceful `disconnect_broker(broker_id: int)`.
