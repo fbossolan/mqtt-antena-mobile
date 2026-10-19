@@ -26,11 +26,11 @@ from __future__ import annotations
 import asyncio
 import ssl
 from dataclasses import dataclass, field
-from typing import Dict, Set, Tuple, Optional
+from typing import Dict, Set, Tuple, Optional, Callable
 
 import paho.mqtt.client as mqtt
 
-from .models import BrokerProfile, ConnectionStatus
+from .models import BrokerProfile, ConnectionStatus, MQTTMessage
 
 # ---------------------------------------------------------------------------
 # Global registry of active sessions keyed by ``broker.id``.
@@ -50,23 +50,54 @@ class ActiveSession:
         Current connection state of the session.
     subscriptions: Set[str]
         Set of topic strings the client is subscribed to.
+    message_queue: asyncio.Queue[MQTTMessage]
+        Queue receiving incoming MQTTMessage objects for UI consumption.
+    callbacks: Set[Callable[[MQTTMessage], None]]
+        Registered callbacks invoked on each received message.
     """
 
     client: mqtt.Client
     status: ConnectionStatus = ConnectionStatus.DISCONNECTED
     subscriptions: Set[str] = field(default_factory=set)
+    message_queue: asyncio.Queue = field(default_factory=asyncio.Queue)
+    callbacks: Set[Callable] = field(default_factory=set)
 
     def __post_init__(self) -> None:
-        # Attach simple callbacks for status tracking.
+        # Attach callbacks for status and message handling.
         self.client.on_connect = self._on_connect
         self.client.on_disconnect = self._on_disconnect
+        self.client.on_message = self._on_message
+
+    def _on_message(self, client, userdata, msg) -> None:  # pragma: no cover
+        """Process incoming MQTT messages, enqueue and notify callbacks."""
+        from .models import MQTTMessage
+        message = MQTTMessage(
+            timestamp=None,
+            topic=msg.topic,
+            payload=msg.payload.decode(errors="ignore"),
+            qos=msg.qos,
+            retained=bool(msg.retain),
+            broker_id=getattr(client, "_broker_id", None),
+        )
+        try:
+            self.message_queue.put_nowait(message)
+        except asyncio.QueueFull:
+            # Discard oldest if full.
+            try:
+                self.message_queue.get_nowait()
+                self.message_queue.put_nowait(message)
+            except Exception:
+                pass
+        for cb in list(self.callbacks):
+            try:
+                cb(message)
+            except Exception:
+                pass
 
     def _on_connect(self, client, userdata, flags, rc):  # pragma: no cover
-        # rc 0 means success.
         self.status = ConnectionStatus.CONNECTED if rc == 0 else ConnectionStatus.ERROR
 
     def _on_disconnect(self, client, userdata, rc):  # pragma: no cover
-        # rc == 0 is a clean disconnect.
         self.status = ConnectionStatus.DISCONNECTED
 
 
@@ -166,3 +197,73 @@ async def disconnect_broker(broker_id: int) -> Tuple[bool, Optional[str]]:
 def get_active_session(broker_id: int) -> Optional[ActiveSession]:
     """Retrieve the ``ActiveSession`` for ``broker_id`` if it exists."""
     return _active_sessions.get(broker_id)
+
+
+async def subscribe(broker_id: int, topic: str, callback: Optional[Callable[[MQTTMessage], None]] = None) -> Tuple[bool, Optional[str]]:
+    """Subscribe to a topic for a given broker session.
+
+    Parameters
+    ----------
+    broker_id: int
+        Identifier of the broker whose session we want to use.
+    topic: str
+        MQTT topic to subscribe to.
+    callback: Callable[[MQTTMessage], None] | None, optional
+        Optional function to be invoked when a message on *topic* arrives.
+
+    Returns
+    -------
+    Tuple[bool, Optional[str]]
+        ``True`` on success, ``False`` with an error message otherwise.
+    """
+    session = get_active_session(broker_id)
+    if not session:
+        return False, f"No active session for broker id {broker_id}."
+    try:
+        rc, _ = session.client.subscribe(topic)
+        if rc != 0:
+            return False, f"Subscribe failed with code {rc}."
+        session.subscriptions.add(topic)
+        if callback:
+            session.callbacks.add(callback)
+        return True, None
+    except Exception as exc:  # pragma: no cover
+        return False, str(exc)
+
+
+async def unsubscribe(broker_id: int, topic: str) -> Tuple[bool, Optional[str]]:
+    """Unsubscribe from a topic for a given broker session.
+
+    Returns ``(True, None)`` on success, otherwise ``(False, error)``.
+    """
+    session = get_active_session(broker_id)
+    if not session:
+        return False, f"No active session for broker id {broker_id}."
+    try:
+        rc, _ = session.client.unsubscribe(topic)
+        if rc != 0:
+            return False, f"Unsubscribe failed with code {rc}."
+        session.subscriptions.discard(topic)
+        return True, None
+    except Exception as exc:  # pragma: no cover
+        return False, str(exc)
+
+
+async def publish_message(broker_id: int, topic: str, payload: str) -> Tuple[bool, Optional[str]]:
+    """Publish a message to a topic after validating the topic does not contain wildcards.
+
+    Wildcard characters '+' and '#' are not allowed in publish topics.
+    """
+    if '+' in topic or '#' in topic:
+        return False, "Topic contains wildcard characters which are not allowed for publishing."
+    session = get_active_session(broker_id)
+    if not session:
+        return False, f"No active session for broker id {broker_id}."
+    try:
+        rc, _ = session.client.publish(topic, payload, qos=0, retain=False)
+        if rc != 0:
+            return False, f"Publish failed with code {rc}."
+        return True, None
+    except Exception as exc:  # pragma: no cover
+        return False, str(exc)
+

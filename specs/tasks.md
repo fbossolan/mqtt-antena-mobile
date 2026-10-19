@@ -72,19 +72,19 @@ To ensure strict engineering discipline and alignment, the following rules apply
   - Implement async graceful `disconnect_broker(broker_id: int)`.
   - Ask user for completion confirmation and if a PR should be created.
 
-- [ ] **Task 3.2: Topic Subscription & Message Streaming**
+- [X] **Task 3.2: Topic Subscription & Message Streaming**
   - Implement `subscribe(broker_id: int, topic: str, callback: Callable)`.
   - Default topic filter to `#` if left blank.
   - Implement `unsubscribe(broker_id: int)`.
   - Feed received messages into an `asyncio.Queue` and notify registered UI callbacks.
   - Ask user for completion confirmation and if a PR should be created.
 
-- [ ] **Task 3.3: Message Publishing**
+- [X] **Task 3.3: Message Publishing**
   - Implement `publish_message(broker_id: int, topic: str, payload: str, qos: int, retain: bool) -> tuple[bool, Optional[str]]`.
   - Enforce wildcard validation (`+` and `#` disallowed in publish topic).
   - Ask user for completion confirmation and if a PR should be created.
 
-- [ ] **Task 3.4: MQTT Client Unit Tests (`tests/test_mqtt_client.py`)**
+- [X] **Task 3.4: MQTT Client Unit Tests (`tests/test_mqtt_client.py`)**
   - Write and execute unit tests for session registry, topic validation, and callback dispatching using mocks inside `.venv`.
   - Ask user for completion confirmation and if a PR should be created.
 
