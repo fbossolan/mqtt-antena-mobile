@@ -26,7 +26,7 @@ from __future__ import annotations
 import asyncio
 import ssl
 from dataclasses import dataclass, field
-from typing import Dict, Set, Tuple, Optional
+from typing import Dict, Set, Tuple, Optional, Callable
 
 import paho.mqtt.client as mqtt
 
