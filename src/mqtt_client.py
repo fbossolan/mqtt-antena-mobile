@@ -197,3 +197,73 @@ async def disconnect_broker(broker_id: int) -> Tuple[bool, Optional[str]]:
 def get_active_session(broker_id: int) -> Optional[ActiveSession]:
     """Retrieve the ``ActiveSession`` for ``broker_id`` if it exists."""
     return _active_sessions.get(broker_id)
+
+
+async def subscribe(broker_id: int, topic: str, callback: Optional[Callable[[MQTTMessage], None]] = None) -> Tuple[bool, Optional[str]]:
+    """Subscribe to a topic for a given broker session.
+
+    Parameters
+    ----------
+    broker_id: int
+        Identifier of the broker whose session we want to use.
+    topic: str
+        MQTT topic to subscribe to.
+    callback: Callable[[MQTTMessage], None] | None, optional
+        Optional function to be invoked when a message on *topic* arrives.
+
+    Returns
+    -------
+    Tuple[bool, Optional[str]]
+        ``True`` on success, ``False`` with an error message otherwise.
+    """
+    session = get_active_session(broker_id)
+    if not session:
+        return False, f"No active session for broker id {broker_id}."
+    try:
+        rc, _ = session.client.subscribe(topic)
+        if rc != 0:
+            return False, f"Subscribe failed with code {rc}."
+        session.subscriptions.add(topic)
+        if callback:
+            session.callbacks.add(callback)
+        return True, None
+    except Exception as exc:  # pragma: no cover
+        return False, str(exc)
+
+
+async def unsubscribe(broker_id: int, topic: str) -> Tuple[bool, Optional[str]]:
+    """Unsubscribe from a topic for a given broker session.
+
+    Returns ``(True, None)`` on success, otherwise ``(False, error)``.
+    """
+    session = get_active_session(broker_id)
+    if not session:
+        return False, f"No active session for broker id {broker_id}."
+    try:
+        rc, _ = session.client.unsubscribe(topic)
+        if rc != 0:
+            return False, f"Unsubscribe failed with code {rc}."
+        session.subscriptions.discard(topic)
+        return True, None
+    except Exception as exc:  # pragma: no cover
+        return False, str(exc)
+
+
+async def publish_message(broker_id: int, topic: str, payload: str) -> Tuple[bool, Optional[str]]:
+    """Publish a message to a topic after validating the topic does not contain wildcards.
+
+    Wildcard characters '+' and '#' are not allowed in publish topics.
+    """
+    if '+' in topic or '#' in topic:
+        return False, "Topic contains wildcard characters which are not allowed for publishing."
+    session = get_active_session(broker_id)
+    if not session:
+        return False, f"No active session for broker id {broker_id}."
+    try:
+        rc, _ = session.client.publish(topic, payload, qos=0, retain=False)
+        if rc != 0:
+            return False, f"Publish failed with code {rc}."
+        return True, None
+    except Exception as exc:  # pragma: no cover
+        return False, str(exc)
+
