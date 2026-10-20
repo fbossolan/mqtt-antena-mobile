@@ -1,95 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
-  <defs>
-    <!-- Background Gradient (Catppuccin Mantle to Base) -->
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#181825" />
-      <stop offset="50%" stop-color="#1e1e2e" />
-      <stop offset="100%" stop-color="#11111b" />
-    </linearGradient>
-
-    <!-- Antenna Signal Glow Gradient -->
-    <linearGradient id="signalGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#89b4fa" />
-      <stop offset="50%" stop-color="#b4befe" />
-      <stop offset="100%" stop-color="#a6e3a1" />
-    </linearGradient>
-
-    <!-- Mast Metallic Gradient -->
-    <linearGradient id="mastGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#cdd6f4" />
-      <stop offset="100%" stop-color="#b4befe" />
-    </linearGradient>
-
-    <!-- Outer Wave Glow Filter -->
-    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="16" result="blur" />
-      <feMerge>
-        <feMergeNode in="blur" />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-  </defs>
-
-  <!-- App Icon Background Container -->
-  <rect width="1024" height="1024" rx="224" fill="url(#bgGrad)" />
-  <rect width="1016" height="1016" x="4" y="4" rx="220" fill="none" stroke="#313244" stroke-width="8" opacity="0.6" />
-
-  <!-- Radiating Broadcast Waves (MQTT Waves) -->
-  <!-- Outer Wave -->
-  <path d="M 230 430 A 320 320 0 0 1 794 430" 
-        fill="none" 
-        stroke="#a6e3a1" 
-        stroke-width="36" 
-        stroke-linecap="round" 
-        opacity="0.85" 
-        filter="url(#glow)" />
-
-  <!-- Middle Wave -->
-  <path d="M 314 470 A 220 220 0 0 1 710 470" 
-        fill="none" 
-        stroke="#89b4fa" 
-        stroke-width="34" 
-        stroke-linecap="round" 
-        opacity="0.9" />
-
-  <!-- Inner Wave -->
-  <path d="M 398 510 A 120 120 0 0 1 626 510" 
-        fill="none" 
-        stroke="#b4befe" 
-        stroke-width="32" 
-        stroke-linecap="round" />
-
-  <!-- Central Transmitter Node (Beacon Tip) -->
-  <circle cx="512" cy="520" r="38" fill="url(#signalGrad)" filter="url(#glow)" />
-  <circle cx="512" cy="520" r="20" fill="#ffffff" />
-
-  <!-- Antenna Structure -->
-  <!-- Horizontal Cross Bar -->
-  <line x1="390" y1="620" x2="634" y2="620" stroke="url(#mastGrad)" stroke-width="24" stroke-linecap="round" />
-  
-  <!-- Second Cross Bar (Lower) -->
-  <line x1="350" y1="710" x2="674" y2="710" stroke="url(#mastGrad)" stroke-width="26" stroke-linecap="round" />
-
-  <!-- Diagonal Lattice Braces -->
-  <line x1="390" y1="620" x2="674" y2="710" stroke="#89b4fa" stroke-width="14" stroke-linecap="round" opacity="0.7" />
-  <line x1="634" y1="620" x2="350" y2="710" stroke="#89b4fa" stroke-width="14" stroke-linecap="round" opacity="0.7" />
-  <line x1="350" y1="710" x2="690" y2="820" stroke="#89b4fa" stroke-width="14" stroke-linecap="round" opacity="0.7" />
-  <line x1="674" y1="710" x2="334" y2="820" stroke="#89b4fa" stroke-width="14" stroke-linecap="round" opacity="0.7" />
-
-  <!-- Vertical Central Mast -->
-  <line x1="512" y1="520" x2="512" y2="820" stroke="url(#mastGrad)" stroke-width="28" stroke-linecap="round" />
-
-  <!-- Left Tower Leg -->
-  <line x1="512" y1="540" x2="330" y2="820" stroke="url(#mastGrad)" stroke-width="26" stroke-linecap="round" />
-
-  <!-- Right Tower Leg -->
-  <line x1="512" y1="540" x2="694" y2="820" stroke="url(#mastGrad)" stroke-width="26" stroke-linecap="round" />
-
-  <!-- Antenna Foundation Pedestal -->
-  <line x1="300" y1="820" x2="724" y2="820" stroke="#b4befe" stroke-width="32" stroke-linecap="round" />
-
-  <!-- Telemetry Data Sparkles / Packets -->
-  <circle cx="260" cy="350" r="14" fill="#a6e3a1" filter="url(#glow)" />
-  <circle cx="764" cy="350" r="14" fill="#89b4fa" filter="url(#glow)" />
-  <circle cx="512" cy="300" r="16" fill="#b4befe" filter="url(#glow)" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" role="img" aria-labelledby="title">
+  <title id="title">Satellite antenna</title>
+  <rect width="1024" height="1024" rx="224" fill="#ffffff"/>
+  <text
+    x="512"
+    y="542"
+    text-anchor="middle"
+    dominant-baseline="central"
+    font-family="Apple Color Emoji, Noto Color Emoji, Segoe UI Emoji, sans-serif"
+    font-size="620"
+  >📡</text>
 </svg>
