@@ -7,10 +7,10 @@ from collections.abc import Callable
 
 import flet as ft
 
-from src.models import BrokerProfile, MQTTMessage
-from src.mqtt_client import get_connected_broker_ids, subscribe, unsubscribe
-from src.storage import StorageEngine, get_storage_engine
-from src.views.common import COLORS, notify
+from models import BrokerProfile, MQTTMessage
+from mqtt_client import get_connected_broker_ids, subscribe, unsubscribe
+from storage import StorageEngine, get_storage_engine
+from views.common import COLORS, notify
 
 
 class SubscribeView(ft.Column):

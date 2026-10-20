@@ -6,10 +6,10 @@ from collections.abc import Callable
 
 import flet as ft
 
-from src.models import BrokerProfile, ConnectionStatus
-from src.mqtt_client import connect_broker, disconnect_broker, get_active_session
-from src.storage import StorageEngine, get_storage_engine
-from src.views.common import COLORS, notify
+from models import BrokerProfile, ConnectionStatus
+from mqtt_client import connect_broker, disconnect_broker, get_active_session
+from storage import StorageEngine, get_storage_engine
+from views.common import COLORS, notify
 
 
 class BrokersView(ft.Column):

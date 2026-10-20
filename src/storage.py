@@ -13,7 +13,7 @@ from pathlib import Path
 import sqlite3
 from typing import Generator, Optional, Union
 
-from src.models import BrokerProfile
+from models import BrokerProfile
 
 DEFAULT_DB_PATH = Path("data/antena.db")
 

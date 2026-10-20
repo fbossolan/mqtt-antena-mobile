@@ -17,8 +17,7 @@ The public API consists of:
   broker identified by its database ``id``.
 
 All operations are performed inside the project's virtual environment and use
-the ``BrokerProfile`` and ``ConnectionStatus`` definitions from
-``src.models``.
+the ``BrokerProfile`` and ``ConnectionStatus`` definitions from ``models``.
 """
 
 from __future__ import annotations
@@ -30,7 +29,7 @@ from typing import Dict, Set, Tuple, Optional, Callable
 
 import paho.mqtt.client as mqtt
 
-from .models import BrokerProfile, ConnectionStatus, MQTTMessage
+from models import BrokerProfile, ConnectionStatus, MQTTMessage
 
 # ---------------------------------------------------------------------------
 # Global registry of active sessions keyed by ``broker.id``.
@@ -70,7 +69,7 @@ class ActiveSession:
 
     def _on_message(self, client, userdata, msg) -> None:  # pragma: no cover
         """Process incoming MQTT messages, enqueue and notify callbacks."""
-        from .models import MQTTMessage
+        from models import MQTTMessage
         message = MQTTMessage(
             timestamp=None,
             topic=msg.topic,

@@ -6,8 +6,8 @@ from typing import Final
 
 import flet as ft
 
-from src.mqtt_client import get_connected_broker_count, shutdown_all_sessions
-from src.views import BrokersView, PublishView, SubscribeView
+from mqtt_client import get_connected_broker_count, shutdown_all_sessions
+from views import BrokersView, PublishView, SubscribeView
 
 
 # Catppuccin Mocha design tokens, shared by the Phase 5 feature views.
