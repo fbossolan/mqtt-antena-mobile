@@ -7,7 +7,7 @@ PYTHON         := $(if $(wildcard $(PYENV_PYTHON)),$(PYENV_PYTHON),python3)
 VENV           := .venv
 VENV_BIN       := $(VENV)/bin
 
-.PHONY: help setup run dev test build-apk clean
+.PHONY: help setup run dev test build-apk android-install clean
 
 help:
 	@echo "======================================================"
@@ -18,6 +18,7 @@ help:
 	@echo "  make dev        - Run application with hot-reloading enabled"
 	@echo "  make test       - Run automated test suite with pytest"
 	@echo "  make build-apk  - Build release Android APK using Flet"
+	@echo "  make android-install - Install the built Android APK with adb"
 	@echo "  make clean      - Clean cache, build artifacts, and test caches"
 	@echo "======================================================"
 
@@ -43,6 +44,9 @@ test:
 build-apk:
 	@echo "Building Android APK with Flet..."
 	$(VENV_BIN)/flet build apk
+
+android-install:
+	adb install -r build/apk/mqtt-antena-mobile.apk
 
 clean:
 	rm -rf build/ dist/ __pycache__ .pytest_cache .flet
