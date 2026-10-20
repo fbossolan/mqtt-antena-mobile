@@ -1,4 +1,4 @@
-📡  # MQTT Antena Mobile
+📡  MQTT Antena Mobile
 
 MQTT Antena Mobile is a lightweight Flet client for inspecting and testing MQTT traffic from Android or a development desktop. It is designed for the common field-debugging loop: save a broker connection, monitor its topics, and publish a test message without leaving the app.
 
