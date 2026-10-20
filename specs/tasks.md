@@ -107,14 +107,14 @@ To ensure strict engineering discipline and alignment, the following rules apply
 
 ## 7. Phase 5: UI Views Implementation (`src/views/`)
 
-- [ ] **Task 5.1: Brokers View (`src/views/brokers.py`)**
+- [X] **Task 5.1: Brokers View (`src/views/brokers.py`)**
   - Build broker card list displaying name, host, port, SSL tag, and connection status badge.
   - Implement **Connect / Disconnect** toggle buttons with dynamic visual feedback.
   - Implement **Add Broker** modal form dialog with validation.
   - Implement **Edit Broker** and **Delete Broker** confirmation dialogs.
   - Ask user for completion confirmation and if a PR should be created.
 
-- [ ] **Task 5.2: Subscribe View (`src/views/subscribe.py`)**
+- [X] **Task 5.2: Subscribe View (`src/views/subscribe.py`)**
   - Build active broker dropdown (populated dynamically with currently connected brokers).
   - Handle empty state with guidance and shortcut button to Brokers view.
   - Build topic input field with `#` default placeholder.
@@ -122,7 +122,7 @@ To ensure strict engineering discipline and alignment, the following rules apply
   - Build terminal log console container (`#11111b`) with monospaced stream and 500-message FIFO buffer.
   - Ask user for completion confirmation and if a PR should be created.
 
-- [ ] **Task 5.3: Publish View (`src/views/publish.py`)**
+- [X] **Task 5.3: Publish View (`src/views/publish.py`)**
   - Build active broker dropdown selector with empty state handling.
   - Build destination topic text field with wildcard validation.
   - Build QoS segmented selector (`0`, `1`, `2`) defaulting to `0`.
