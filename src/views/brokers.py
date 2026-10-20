@@ -74,12 +74,21 @@ class BrokersView(ft.Column):
     def _card(self, broker: BrokerProfile) -> ft.Container:
         status = self._status(broker.id)
         connected = status == ConnectionStatus.CONNECTED
+
+        # Async closures capture ``broker`` via a default argument to avoid
+        # the classic late-binding loop closure issue.
+        async def _on_connect(_: ft.Event, b: BrokerProfile = broker) -> None:
+            await self.connect(b)
+
+        async def _on_disconnect(_: ft.Event, b: BrokerProfile = broker) -> None:
+            await self.disconnect(b)
+
         primary = ft.FilledButton(
             "Disconnect" if connected else "Connect",
             icon=ft.Icons.CLOSE if connected else ft.Icons.PLAY_ARROW,
             bgcolor=COLORS["red"] if connected else COLORS["lavender"],
             color=COLORS["base"],
-            on_click=(lambda _: self.disconnect(broker)) if connected else (lambda _: self.connect(broker)),
+            on_click=_on_disconnect if connected else _on_connect,
         )
         return ft.Container(
             padding=16,

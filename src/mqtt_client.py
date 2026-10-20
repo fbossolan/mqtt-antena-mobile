@@ -94,10 +94,14 @@ class ActiveSession:
             except Exception:
                 pass
 
-    def _on_connect(self, client, userdata, flags, rc):  # pragma: no cover
-        self.status = ConnectionStatus.CONNECTED if rc == 0 else ConnectionStatus.ERROR
+    def _on_connect(self, client, userdata, flags, reason_code, properties):  # pragma: no cover
+        """Paho v2 on_connect callback: reason_code 0 means success."""
+        self.status = (
+            ConnectionStatus.CONNECTED if reason_code == 0 else ConnectionStatus.ERROR
+        )
 
-    def _on_disconnect(self, client, userdata, rc):  # pragma: no cover
+    def _on_disconnect(self, client, userdata, disconnect_flags, reason_code, properties):  # pragma: no cover
+        """Paho v2 on_disconnect callback."""
         self.status = ConnectionStatus.DISCONNECTED
 
 
@@ -106,9 +110,14 @@ def _build_mqtt_client(broker: BrokerProfile) -> mqtt.Client:
 
     SSL/TLS is enabled when ``broker.use_ssl`` is ``True``. Username/password
     authentication is applied when provided.
+    Uses Paho CallbackAPIVersion.VERSION2 to avoid deprecation warnings.
     """
     client_id = f"mqtt_antena_{broker.id or 'temp'}"
-    client = mqtt.Client(client_id=client_id, clean_session=True)
+    client = mqtt.Client(
+        callback_api_version=mqtt.CallbackAPIVersion.VERSION2,
+        client_id=client_id,
+        clean_session=True,
+    )
     # Paho callbacks only receive the client, so retain the owning profile id
     # there for the UI's per-broker subscription stream.
     setattr(client, "_broker_id", broker.id)

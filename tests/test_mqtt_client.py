@@ -48,8 +48,9 @@ class DummyClient:
         # Simulate immediate successful connection.
         self._connected = True
         if self.on_connect:
-            # rc=0 means success.
-            self.on_connect(self, None, None, 0)
+            # Paho v2 on_connect signature: client, userdata, flags, reason_code, properties
+            # reason_code=0 means success.
+            self.on_connect(self, None, None, 0, None)
 
     def loop_start(self):
         pass
@@ -60,7 +61,8 @@ class DummyClient:
     def disconnect(self):
         self._connected = False
         if self.on_disconnect:
-            self.on_disconnect(self, None, 0)
+            # Paho v2 on_disconnect signature: client, userdata, disconnect_flags, reason_code, properties
+            self.on_disconnect(self, None, None, 0, None)
 
     def subscribe(self, topic):
         # Return (result, mid) – 0 indicates success.
@@ -87,7 +89,14 @@ class DummyClient:
 def patch_mqtt_client(monkeypatch):
     """Patch the ``paho.mqtt.client.Client`` used inside the module.
     """
-    monkeypatch.setattr(mqtt_client, "mqtt", SimpleNamespace(Client=DummyClient))
+    monkeypatch.setattr(
+        mqtt_client,
+        "mqtt",
+        SimpleNamespace(
+            Client=DummyClient,
+            CallbackAPIVersion=SimpleNamespace(VERSION2="v2"),
+        ),
+    )
     # Ensure a clean global registry for each test.
     mqtt_client._active_sessions.clear()
     yield
