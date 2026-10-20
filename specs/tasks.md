@@ -149,10 +149,10 @@ To ensure strict engineering discipline and alignment, the following rules apply
   - Execute full test suite via `make test` within `.venv`.
   - Ask user for completion confirmation and if a PR should be created.
 
-- [ ] **Task 6.3: Android APK Packaging Verification**
+- [X] **Task 6.3: Android APK Packaging Verification**
   - Run `make build-apk` inside `.venv` to verify Flet packaging pipeline and Android manifests.
   - Ask user for completion confirmation and if a PR should be created.
 
-- [ ] **Task 6.4: Documentation**
+- [X] **Task 6.4: Documentation**
   - Complete `README.md` with prerequisites, installation, development commands, and screenshots/usage instructions.
   - Ask user for completion confirmation and if a PR should be created.
