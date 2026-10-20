@@ -135,7 +135,7 @@ To ensure strict engineering discipline and alignment, the following rules apply
 
 ## 8. Phase 6: Integration, Testing & Packaging
 
-- [ ] **Task 6.1: End-to-End Local Verification**
+- [X] **Task 6.1: End-to-End Local Verification**
   - Test end-to-end flow with a local Mosquitto or public test broker (e.g. HiveMQ public broker):
     1. Create broker profile.
     2. Connect and verify status turns green.
@@ -145,7 +145,7 @@ To ensure strict engineering discipline and alignment, the following rules apply
     6. Disconnect broker and ensure active broker dropdowns update accordingly.
   - Ask user for completion confirmation and if a PR should be created.
 
-- [ ] **Task 6.2: Automated Test Suite**
+- [X] **Task 6.2: Automated Test Suite**
   - Execute full test suite via `make test` within `.venv`.
   - Ask user for completion confirmation and if a PR should be created.
 
