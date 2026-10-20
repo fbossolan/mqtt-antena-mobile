@@ -199,6 +199,28 @@ def get_active_session(broker_id: int) -> Optional[ActiveSession]:
     return _active_sessions.get(broker_id)
 
 
+def get_connected_broker_count() -> int:
+    """Return the number of currently connected MQTT sessions."""
+    return sum(
+        session.status == ConnectionStatus.CONNECTED
+        for session in _active_sessions.values()
+    )
+
+
+async def shutdown_all_sessions() -> None:
+    """Gracefully stop every active MQTT client network loop.
+
+    The function is idempotent because Flet may deliver both page disconnect
+    and close events for the same session.
+    """
+    broker_ids = list(_active_sessions)
+    if broker_ids:
+        await asyncio.gather(
+            *(disconnect_broker(broker_id) for broker_id in broker_ids),
+            return_exceptions=True,
+        )
+
+
 async def subscribe(broker_id: int, topic: str, callback: Optional[Callable[[MQTTMessage], None]] = None) -> Tuple[bool, Optional[str]]:
     """Subscribe to a topic for a given broker session.
 
