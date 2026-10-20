@@ -36,6 +36,7 @@ class DummyClient:
         self.on_message = None
         self._connected = False
         self._broker_id = None
+        self.last_publish = None
 
     def username_pw_set(self, *_, **__):
         pass
@@ -69,6 +70,7 @@ class DummyClient:
         return (0, 1)
 
     def publish(self, topic, payload, qos, retain):
+        self.last_publish = (topic, payload, qos, retain)
         return (0, 1)
 
     # Helper to trigger a received message.
@@ -130,6 +132,7 @@ async def test_subscribe_registers_callback_and_topic(broker):
     assert len(received) == 1
     assert received[0].topic == "test/topic"
     assert received[0].payload == "payload"
+    assert received[0].broker_id == broker.id
 
 @pytest.mark.asyncio
 async def test_unsubscribe_removes_topic(broker):
@@ -145,9 +148,10 @@ async def test_unsubscribe_removes_topic(broker):
 async def test_publish_validation_and_success(broker):
     await mqtt_client.connect_broker(broker)
     # Valid publish
-    ok, err = await mqtt_client.publish_message(broker.id, "valid/topic", "hello")
+    ok, err = await mqtt_client.publish_message(broker.id, "valid/topic", "hello", qos=2, retain=True)
     assert ok
     assert err is None
+    assert mqtt_client.get_active_session(broker.id).client.last_publish == ("valid/topic", "hello", 2, True)
 
     # Invalid topic with wildcard
     ok, err = await mqtt_client.publish_message(broker.id, "invalid/#", "test")
@@ -158,6 +162,10 @@ async def test_publish_validation_and_success(broker):
     ok, err = await mqtt_client.publish_message(999, "topic", "msg")
     assert not ok
     assert "no active session" in err.lower()
+
+    ok, err = await mqtt_client.publish_message(broker.id, "", "msg")
+    assert not ok
+    assert "required" in err.lower()
 
 @pytest.mark.asyncio
 async def test_error_when_no_session(broker):

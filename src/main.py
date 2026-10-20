@@ -7,6 +7,7 @@ from typing import Final
 import flet as ft
 
 from src.mqtt_client import get_connected_broker_count, shutdown_all_sessions
+from src.views import BrokersView, PublishView, SubscribeView
 
 
 # Catppuccin Mocha design tokens, shared by the Phase 5 feature views.
@@ -66,23 +67,6 @@ def build_mocha_theme() -> ft.Theme:
     )
 
 
-def _placeholder_view(title: str, description: str, icon: str) -> ft.Control:
-    """Create a stable shell view for a Phase 5 feature view."""
-    return ft.Container(
-        expand=True,
-        alignment=ft.Alignment.CENTER,
-        content=ft.Column(
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-            tight=True,
-            controls=[
-                ft.Icon(icon, size=48, color=MOCHA["lavender"]),
-                ft.Text(title, size=24, weight=ft.FontWeight.W_600),
-                ft.Text(description, color=MOCHA["muted"], text_align=ft.TextAlign.CENTER),
-            ],
-        ),
-    )
-
-
 def _connection_badge(count: int) -> ft.Container:
     """Build the compact active-connection indicator in the header."""
     connected = count > 0
@@ -130,25 +114,37 @@ async def main(page: ft.Page) -> None:
         ),
     )
 
-    # Views are instantiated once, preserving their state across tab switches.
-    views: list[ft.Control] = [
-        _placeholder_view("Brokers", "Manage and connect your MQTT broker profiles.", ft.Icons.ROUTER),
-        _placeholder_view("Subscribe", "Listen to live MQTT topic messages.", ft.Icons.PODCASTS),
-        _placeholder_view("Publish", "Send a message to a connected broker.", ft.Icons.SEND),
-    ]
-    view_host = ft.Container(expand=True, padding=20, content=views[0])
+    # Feature views are instantiated once, preserving their forms and log state
+    # while the user moves between the persistent navigation destinations.
+    views: list[ft.Control] = []
+    view_host = ft.Container(expand=True, padding=20)
 
     def refresh_connection_indicator() -> None:
         replacement = _connection_badge(get_connected_broker_count())
         page.appbar.title.controls[1] = replacement
 
-    def switch_view(event: ft.Event[ft.NavigationBar]) -> None:
-        index = event.control.selected_index
+    def show_view(index: int) -> None:
         if index is None or not 0 <= index < len(views):
             return
         view_host.content = views[index]
+        if page.navigation_bar is not None:
+            page.navigation_bar.selected_index = index
+        refresher = getattr(views[index], "refresh_connected_brokers", None)
+        if callable(refresher):
+            refresher()
         refresh_connection_indicator()
         page.update()
+
+    brokers_view = BrokersView(page, on_sessions_changed=refresh_connection_indicator)
+    subscribe_view = SubscribeView(page, go_to_brokers=lambda: show_view(0))
+    publish_view = PublishView(page, go_to_brokers=lambda: show_view(0))
+    views.extend([brokers_view, subscribe_view, publish_view])
+    view_host.content = views[0]
+
+    def switch_view(event: ft.Event[ft.NavigationBar]) -> None:
+        index = event.control.selected_index
+        if index is not None:
+            show_view(index)
 
     page.navigation_bar = ft.NavigationBar(
         selected_index=0,

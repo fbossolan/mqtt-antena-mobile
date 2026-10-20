@@ -109,6 +109,9 @@ def _build_mqtt_client(broker: BrokerProfile) -> mqtt.Client:
     """
     client_id = f"mqtt_antena_{broker.id or 'temp'}"
     client = mqtt.Client(client_id=client_id, clean_session=True)
+    # Paho callbacks only receive the client, so retain the owning profile id
+    # there for the UI's per-broker subscription stream.
+    setattr(client, "_broker_id", broker.id)
 
     if broker.username:
         client.username_pw_set(broker.username, broker.password or "")
@@ -147,6 +150,7 @@ async def connect_broker(broker: BrokerProfile) -> Tuple[bool, Optional[str]]:
 
     client = _build_mqtt_client(broker)
     session = ActiveSession(client=client)
+    session.status = ConnectionStatus.CONNECTING
     _active_sessions[broker.id] = session
 
     loop = asyncio.get_event_loop()
@@ -164,6 +168,7 @@ async def connect_broker(broker: BrokerProfile) -> Tuple[bool, Optional[str]]:
             if session.status == ConnectionStatus.ERROR:
                 break
             await asyncio.sleep(0.1)
+        session.status = ConnectionStatus.ERROR
         return False, "Connection timeout or error occurred."
     except Exception as exc:  # pragma: no cover
         # Ensure cleanup on unexpected exceptions.
@@ -207,6 +212,15 @@ def get_connected_broker_count() -> int:
     )
 
 
+def get_connected_broker_ids() -> list[int]:
+    """Return ids for sessions that are currently ready for MQTT operations."""
+    return [
+        broker_id
+        for broker_id, session in _active_sessions.items()
+        if session.status == ConnectionStatus.CONNECTED
+    ]
+
+
 async def shutdown_all_sessions() -> None:
     """Gracefully stop every active MQTT client network loop.
 
@@ -238,6 +252,7 @@ async def subscribe(broker_id: int, topic: str, callback: Optional[Callable[[MQT
     Tuple[bool, Optional[str]]
         ``True`` on success, ``False`` with an error message otherwise.
     """
+    topic = topic.strip() or "#"
     session = get_active_session(broker_id)
     if not session:
         return False, f"No active session for broker id {broker_id}."
@@ -271,18 +286,29 @@ async def unsubscribe(broker_id: int, topic: str) -> Tuple[bool, Optional[str]]:
         return False, str(exc)
 
 
-async def publish_message(broker_id: int, topic: str, payload: str) -> Tuple[bool, Optional[str]]:
+async def publish_message(
+    broker_id: int,
+    topic: str,
+    payload: str,
+    qos: int = 0,
+    retain: bool = False,
+) -> Tuple[bool, Optional[str]]:
     """Publish a message to a topic after validating the topic does not contain wildcards.
 
     Wildcard characters '+' and '#' are not allowed in publish topics.
     """
+    topic = topic.strip()
+    if not topic:
+        return False, "A publish topic is required."
     if '+' in topic or '#' in topic:
         return False, "Topic contains wildcard characters which are not allowed for publishing."
+    if qos not in (0, 1, 2):
+        return False, "QoS must be 0, 1, or 2."
     session = get_active_session(broker_id)
     if not session:
         return False, f"No active session for broker id {broker_id}."
     try:
-        rc, _ = session.client.publish(topic, payload, qos=0, retain=False)
+        rc, _ = session.client.publish(topic, payload, qos=qos, retain=retain)
         if rc != 0:
             return False, f"Publish failed with code {rc}."
         return True, None
