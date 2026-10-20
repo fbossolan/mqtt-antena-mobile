@@ -42,7 +42,7 @@ test:
 
 build-apk:
 	@echo "Building Android APK with Flet..."
-	$(VENV_BIN)/flet build apk --project-name "mqtt_antena_mobile" --product-name "MQTT Antena"
+	$(VENV_BIN)/flet build apk
 
 clean:
 	rm -rf build/ dist/ __pycache__ .pytest_cache .flet
