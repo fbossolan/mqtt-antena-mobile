@@ -92,12 +92,12 @@ To ensure strict engineering discipline and alignment, the following rules apply
 
 ## 6. Phase 4: App Shell & Catppuccin Dark Theme (`src/main.py`)
 
-- [ ] **Task 4.1: Catppuccin Mocha Styling & Theme Config**
+- [X] **Task 4.1: Catppuccin Mocha Styling & Theme Config**
   - Configure Catppuccin Mocha palette: Base `#1e1e2e`, Mantle `#181825`, Surface `#313244`, Lavender `#b4befe`, Green `#a6e3a1`, Red `#f38ba8`, Crust `#11111b`.
   - Apply custom `ft.Theme` with dark mode and typography.
   - Ask user for completion confirmation and if a PR should be created.
 
-- [ ] **Task 4.2: App Header & Persistent Navigation**
+- [X] **Task 4.2: App Header & Persistent Navigation**
   - Implement header with 📡 **MQTT Antena Mobile** title and active connection indicator badge.
   - Implement persistent `ft.NavigationBar` with 3 destinations: **Brokers**, **Subscribe**, **Publish**.
   - Wire up view switching, state persistence across tab switches, and clean shutdown on app exit.
