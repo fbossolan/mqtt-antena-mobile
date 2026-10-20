@@ -14,18 +14,18 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
+    "flet[test]==1.0.4",
     "flet-cli>=1.0.4",
-    "numpy>=2.0.0",
     "pytest>=8.0.0",
     "pytest-asyncio>=0.23.0"
 ]
 
 [dependency-groups]
 dev = [
+    "flet[test]==1.0.4",
     "flet-cli>=1.0.4",
     "flet-desktop>=1.0.4",
     "flet-web>=1.0.4",
-    "numpy>=2.0.0",
     "pytest>=8.0.0",
     "pytest-asyncio>=0.23.0"
 ]
